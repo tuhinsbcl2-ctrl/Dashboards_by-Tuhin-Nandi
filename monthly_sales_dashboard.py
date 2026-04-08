@@ -515,18 +515,17 @@ def chart_debtor_type_distribution(df: pd.DataFrame):
 
 def chart_gst_summary(df: pd.DataFrame):
     """Grouped bar chart: IGST vs CGST+SGST split by month."""
-    monthly = (
-        df.groupby(["Year", "Month", "Month Name"])
-        .agg(
-            IGST=("IGST Amount", "sum"),
-            CGST_SGST=pd.NamedAgg(
-                column="CGST Amount",
-                aggfunc=lambda x: x.sum() + df.loc[x.index, "SGST Amount"].sum(),
-            ),
-        )
+    monthly_raw = (
+        df.groupby(["Year", "Month", "Month Name"])[
+            ["IGST Amount", "CGST Amount", "SGST Amount"]
+        ]
+        .sum()
         .reset_index()
         .sort_values(["Year", "Month"])
     )
+    monthly = monthly_raw.copy()
+    monthly["IGST"] = monthly["IGST Amount"]
+    monthly["CGST_SGST"] = monthly["CGST Amount"] + monthly["SGST Amount"]
     monthly["Period"] = monthly["Month Name"] + " " + monthly["Year"].astype(str)
     melted = monthly.melt(
         id_vars="Period",

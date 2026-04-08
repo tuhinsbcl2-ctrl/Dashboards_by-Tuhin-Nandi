@@ -559,18 +559,17 @@ def chart_monthly_gst_trend(df: pd.DataFrame):
 
 def chart_interstate_intrastate(df: pd.DataFrame):
     """Grouped bar chart: Inter-state (IGST) vs Intra-state (CGST+SGST) by month."""
-    monthly = (
-        df.groupby(["Year", "Month", "Month Name"])
-        .agg(
-            IGST=("IGST Amount", "sum"),
-            CGST_SGST=pd.NamedAgg(
-                column="CGST Amount",
-                aggfunc=lambda x: x.sum() + df.loc[x.index, "SGST Amount"].sum(),
-            ),
-        )
+    monthly_raw = (
+        df.groupby(["Year", "Month", "Month Name"])[
+            ["IGST Amount", "CGST Amount", "SGST Amount"]
+        ]
+        .sum()
         .reset_index()
         .sort_values(["Year", "Month"])
     )
+    monthly = monthly_raw.copy()
+    monthly["IGST"] = monthly["IGST Amount"]
+    monthly["CGST_SGST"] = monthly["CGST Amount"] + monthly["SGST Amount"]
     monthly["Period"] = monthly["Month Name"] + " " + monthly["Year"].astype(str)
     melted = monthly.melt(
         id_vars="Period",
