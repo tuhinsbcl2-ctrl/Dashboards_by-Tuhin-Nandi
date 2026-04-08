@@ -46,7 +46,7 @@ def generate_sample_data() -> pd.DataFrame:
             day = rng.integers(1, 29)
             debtor = rng.choice(debtors)
             state = rng.choice(states)
-            sales_amount = round(float(rng.uniform(5_000, 2_00_000)), 2)
+            sales_amount = round(float(rng.uniform(5_000, 200_000)), 2)
             gst_rate = rng.choice([5, 12, 18, 28])
             gst_amount = round(sales_amount * gst_rate / 100, 2)
             rows.append({
